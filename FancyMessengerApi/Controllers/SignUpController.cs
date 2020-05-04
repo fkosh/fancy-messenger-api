@@ -1,5 +1,8 @@
+using System.Threading;
 using System.Threading.Tasks;
 using FancyMessengerApi.Dto;
+using FancyMessengerApi.Entities;
+using FancyMessengerApi.Repository;
 using FancyMessengerApi.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -21,10 +24,14 @@ namespace FancyMessengerApi.Controllers
         //     _logger = logger;
         // }
 
+        private readonly UserRepository _userRepository;
+        
         private readonly AuthService _authService;
         
-        public SignUpController(AuthService authService)
+        public SignUpController(UserRepository userRepository, AuthService authService)
         {
+            _userRepository = userRepository;
+            
             _authService = authService;
         }
         
@@ -38,27 +45,44 @@ namespace FancyMessengerApi.Controllers
         [HttpPost("checks/username")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status409Conflict)]
-        public async Task<IActionResult> CheckUsernameAsync([FromBody] string username)
+        public async Task<IActionResult> CheckUsernameAsync(
+            [FromBody] string username, CancellationToken ct)
         {
-            // TODO
+            if (await _userRepository.FindOneAsync(username, ct) is null)
+                return Ok();
 
-            return Ok();
+            return Conflict();
         }
 
         /// <summary>
         /// Register new user and return first auth-data.
         /// </summary>
-        /// <param name="credentials"></param>
         /// <returns>
         /// </returns>
         [HttpPost]
         [ProducesResponseType(typeof(object), StatusCodes.Status200OK)] // TODO
         [ProducesResponseType(typeof(object), StatusCodes.Status409Conflict)]
-        public async Task<IActionResult> SignUpAsync([FromBody] UserCredentials credentials)
+        public async Task<IActionResult> SignUpAsync(
+            [FromBody] UserCredentials credentials, CancellationToken ct)
         {
-            var token = _authService.CreateUserToken("123");
+            if (await _userRepository.FindOneAsync( credentials.Username, ct) != null)
+                return Conflict();
 
-            return Ok(token);
+            _authService.CreatePasswordHash(
+                credentials.Password, out var hash, out var salt // TODO awfull interface
+            );
+            
+            var userId = await _userRepository.InsertOneAsync(
+                new UserEntity {
+                    Username = credentials.Username,
+                    PasswordHash = hash,
+                    PasswordSalt = salt
+                },  
+                ct
+            );
+
+            // TODO ugly.
+            return Ok(new { userId, accessToken = _authService.CreateUserToken(userId) });
         }
     }
 }

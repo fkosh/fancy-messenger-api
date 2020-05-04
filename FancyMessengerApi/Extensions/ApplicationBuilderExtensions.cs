@@ -13,20 +13,21 @@ namespace FancyMessengerApi.Extensions
             // >().Value;
             
             instance.UseSwagger(options => {
-                options.PreSerializeFilters.Add((document, request) => {
-                    // Translate routes to lower registry.
-                    
-                    var pathsInLower = document.Paths.ToDictionary(
-                        p => p.Key.ToLowerInvariant(), p => p.Value
-                    );
-                    
-                    document.Paths.Clear();
-
-                    foreach (var pathInLower in pathsInLower)
-                    {
-                        document.Paths.Add(pathInLower.Key, pathInLower.Value);
-                    }
-                });
+                // TODO swager start send {userid} except value
+                // options.PreSerializeFilters.Add((document, request) => {
+                //     // Translate routes to lower registry.
+                //     
+                //     var pathsInLower = document.Paths.ToDictionary(
+                //         p => p.Key.ToLowerInvariant(), p => p.Value
+                //     );
+                //     
+                //     document.Paths.Clear();
+                //
+                //     foreach (var pathInLower in pathsInLower)
+                //     {
+                //         document.Paths.Add(pathInLower.Key, pathInLower.Value);
+                //     }
+                // });
             });
 
             instance.UseSwaggerUI(options => {

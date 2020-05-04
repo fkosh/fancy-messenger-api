@@ -4,6 +4,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using FancyMessengerApi.Extensions;
+using FancyMessengerApi.Repository;
 using FancyMessengerApi.Services;
 
 namespace FancyMessengerApi
@@ -24,6 +25,9 @@ namespace FancyMessengerApi
             services.AddControllers();
             
             services.AddSingleton(new AuthService(_config["Auth:SecretKey"]));
+
+            services.AddSingleton<UserRepository>();
+            services.AddSingleton<MessageRepository>();
             
             // Docs
             services.AddHttpContextAccessor(); // TODO Move inside AddSwaggerGen?
