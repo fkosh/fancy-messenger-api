@@ -16,16 +16,16 @@ namespace FancyMessengerApi.Repository
             _messages = new List<MessageEntity>();
         }
 
-        public async Task<string> InsertOneAsync(MessageEntity instance, CancellationToken ct)
+        public async Task<MessageEntity> InsertOneAsync(MessageEntity instance, CancellationToken ct)
         {
-            return await Task<string>.Factory.StartNew(
+            return await Task<MessageEntity>.Factory.StartNew(
                 () => {
                     instance.Id = Guid.NewGuid().ToString();
                     instance.CreatedAt = DateTime.UtcNow;
                     
                     _messages.Add(instance);
                 
-                    return instance.Id;
+                    return instance;
                 },
                 ct
             );

@@ -4,6 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using FancyMessengerApi.Dto;
 using FancyMessengerApi.Entities;
+using FancyMessengerApi.Mappers;
 using FancyMessengerApi.Repository;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -78,16 +79,16 @@ namespace FancyMessengerApi.Controllers
             [FromBody, Required] MessageDto message, 
             CancellationToken ct)
         {
-            var messageId = await _messageRepository.InsertOneAsync(
-                new MessageEntity {
-                    SenderId = AuthorizedUserId,
-                    ReceiverId = userId,
-                    Text = message.Text
-                }, 
-                ct
+            return Ok(
+                (await _messageRepository.InsertOneAsync(
+                    new MessageEntity {
+                        SenderId = AuthorizedUserId,
+                        ReceiverId = userId,
+                        Text = message.Text
+                    }, 
+                    ct
+                )).ToDto()
             );
-
-            return Ok(messageId); // TODO swagger + time of insert
         }
     }
 }
