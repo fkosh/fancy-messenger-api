@@ -29,6 +29,15 @@ namespace FancyMessengerApi
             services.AddSingleton<UserRepository>();
             services.AddSingleton<MessageRepository>();
             
+            services.AddCors(options =>
+            {
+                options.AddPolicy("CorsPolicy",
+                    builder => builder.AllowAnyOrigin()
+                        .AllowAnyMethod()
+                        .AllowAnyHeader());
+            });
+
+            
             // Docs
             services.AddHttpContextAccessor(); // TODO Move inside AddSwaggerGen?
             services.AddSwaggerGen();
@@ -45,6 +54,8 @@ namespace FancyMessengerApi
             app.UseHttpsRedirection();
 
             app.UseRouting();
+            
+            app.UseCors("CorsPolicy");
             
             app.UseAuthentication();
             app.UseAuthorization();
