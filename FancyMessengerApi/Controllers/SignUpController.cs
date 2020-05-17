@@ -82,7 +82,13 @@ namespace FancyMessengerApi.Controllers
             );
 
             // TODO ugly.
-            return Ok(new { userId, accessToken = _authService.CreateUserToken(userId) });
+            return Ok(
+                new {
+                    id = userId,
+                    credentials.Username,
+                    AccessToken = _authService.CreateUserToken(userId)
+                }
+            );
         }
     }
 }

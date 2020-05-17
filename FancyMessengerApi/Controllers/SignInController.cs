@@ -48,7 +48,13 @@ namespace FancyMessengerApi.Controllers
             if (!isPasswordValid)
                 return Unauthorized();
             
-            return Ok(_authService.CreateUserToken(user.Id));
+            return Ok(
+                new {
+                    user.Id,
+                    credentials.Username,
+                    AccessToken = _authService.CreateUserToken(user.Id)
+                }
+             );
         }
     }
 }
